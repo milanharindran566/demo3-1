@@ -24,7 +24,7 @@ pipeline {
         success {
             archiveArtifacts 'test-results.txt'
         }
-        failed {
+        failure {
             echo "oops..."
         }
     }
