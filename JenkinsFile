@@ -1,11 +1,11 @@
 pipeline {
     agent any
-    enviroment {
+    environment {
         RELEASE='20.05'
     }
     stages {
         stage('Build'){
-            enviroment {
+            environment {
                 LOG_LEVEL='INFO'
             }
             steps {
