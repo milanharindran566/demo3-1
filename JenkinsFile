@@ -1,0 +1,31 @@
+pipeline {
+    agent any
+    enviroment {
+        RELEASE='20.05'
+    }
+    stages {
+        stage('Build'){
+            enviroment {
+                LOG_LEVEL='INFO'
+            }
+            steps {
+                echo "Building release ${RELEASE} with log level ${LOG_LEVEL}"
+            }
+        }
+        stage('Test')
+        {
+            steps {
+                echo "Testing release ${RELEASE}"
+                writeFile file: 'test-results.txt', text: 'Yay! The test has passed.'
+            }
+        }
+    }
+    post {
+        success {
+            archiveArtifacts 'test-results.txt'
+        }
+        failed {
+            echo "oops..."
+        }
+    }
+}
