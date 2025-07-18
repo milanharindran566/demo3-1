@@ -33,8 +33,14 @@ pipeline {
         stage('Build') {
             // Environment variables specific to the 'Build' stage
             environment {
-                VERSION_SUFFIX = "${sh(script:'if [ "${RC}" == "false" ] ; then echo -n "${VERSION_RC}+ci.${BUILD_NUMBER}"; else echo -n "${VERSION_RC}"; fi', returnStdout: true)}"
-            }
+                VERSION_SUFFIX = "${sh(script: """
+                    if [ "${params.RC}" == "false" ] ; then
+                        echo -n "${env.VERSION_RC}+ci.${env.BUILD_NUMBER}"
+                    else
+                        echo -n "${env.VERSION_RC}"
+                    fi
+                """, returnStdout: true)}"
+                }
             steps {
                 echo "Building version: ${VERSION} with suffix: ${VERSION_SUFFIX}"
                 // Corrected the multi-line sh command and path
