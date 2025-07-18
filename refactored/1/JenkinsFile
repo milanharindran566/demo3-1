@@ -1,19 +1,26 @@
+// Jenkinsfile
 pipeline {
-    agent any
+    agent any // Specifies that the pipeline can run on any available agent
+
     parameters {
+        // Defines a boolean parameter 'RC' (Release Candidate)
         booleanParam(
-            name: 'RC', 
-            defaultValue: false, 
-            description: 'Is this a Release Candidate?'
-            )
+            name: 'RC',
+            defaultValue: false, // Default value is unchecked (false)
+            description: 'Is this a Release Candidate build?'
+        )
     }
+
+    // Global environment variables for the entire pipeline
     environment {
-        VERSION = '1.0,0'
-        VERSION_RC = 'rc.2'
+        VERSION = '1.0.0' // Corrected comma to a dot for version number
+        VERSION_RC = 'rc.2' // Suffix for Release Candidate builds
     }
+
     stages {
-        stage('Audit tools'){
+        stage('Audit tools') {
             steps {
+                echo 'Checking installed tool versions...'
                 sh '''
                     git version
                     docker version
@@ -22,46 +29,87 @@ pipeline {
                 '''
             }
         }
-        stage('Build'){
+
+        stage('Build') {
+            // Environment variables specific to the 'Build' stage
             environment {
+                // Dynamically calculates VERSION_SUFFIX based on the 'RC' parameter
                 VERSION_SUFFIX = "${
                     sh(
-                        script:'if [ "${RC}" == "false" ] ; then echo -n "${VERSION_RC}+ci.${BUILD_NUMBER}"; else echo -n "${VERSION_RC}"; fi', returnStdout: true
-                    )}"
+                        script: '''
+                            if [ "${params.RC}" == "false" ] ; then
+                                echo -n "${VERSION_RC}+ci.${BUILD_NUMBER}"
+                            else
+                                echo -n "${VERSION_RC}"
+                            fi
+                        ''', // Multi-line string for shell script
+                        returnStdout: true // Captures the script's output as the variable's value
+                    )
+                }"
             }
             steps {
-                echo "Building version ${VERSION} with suffix ${VERSION_SUFFIX}"
-                sh 'dotnet build -p:VersionPrefix="${VERSION}" --version-suffix 
-                "${VERSION_SUFFIX}" ./src/Pi.Web/Pi.Web.csproj'
+                echo "Building version: ${VERSION} with suffix: ${VERSION_SUFFIX}"
+                // Corrected the multi-line sh command and path
+                sh "dotnet build -p:VersionPrefix=\"${VERSION}\" --version-suffix \"${VERSION_SUFFIX}\" ./src/Pi.Web/Pi.Web.csproj"
             }
         }
-        stage('Unit Test'){
-            steps{
-                dir('./src'){
-                    sh 
+
+        stage('Unit Test') {
+            steps {
+                // Changes the working directory for the commands within this block
+                dir('./src') {
+                    sh '''
+                        # Run tests for Pi.Math.Tests project
+                        dotnet test --logger "trx;LogFileName=Pi.Math.trx" Pi.Math.Tests/Pi.Math.Tests.csproj
+                        # Run tests for Pi.Runtime.Tests project (corrected potential typo)
+                        dotnet test --logger "trx;LogFileName=Pi.Runtime.trx" Pi.Runtime.Tests/Pi.Runtime.Tests.csproj
                     '''
-                        dotnet test --logger "trx;logFileName=Pi.Math.trx" Pi.Math.Tests/Pi.Math.Tests.csproj
-                        dotnet test --logger "trx;logFileName=Pi.Runtime.trx" Pi.Math.Runtime/Pi.Math.Runtime.csproj
-                    '''
+                    // Publishes the TRX test results to Jenkins UI
                     mstest testResultsFile:"**/*.trx", keepLongStdio: true
                 }
             }
         }
-        stage('Smoke Test'){
+
+        stage('Smoke Test') {
             steps {
+                echo 'Running smoke tests...'
+                // This path is very specific. Ensure it matches your build output.
+                // Consider using 'dotnet run --project ./src/Pi.Web/Pi.Web.csproj'
+                // if you want to run the web app directly from its project.
                 sh 'dotnet ./src/Pi.Web/bin/Debug/netcoreapp3.1/Pi.Web.dll'
             }
         }
-        stage('Publish'){
-            when {
-                expression { returns params.RC}
-            }
 
+        stage('Publish') {
+            // This stage will only run if the 'RC' parameter is checked (true)
+            when {
+                expression {
+                    // 'returns' is not a keyword. Use 'return' to specify the boolean result.
+                    // params.RC is already a boolean, so directly returning it works.
+                    return params.RC
+                }
+            }
             steps {
-                sh 'dotnet publish -p:versionPrefix="${VERSION}" --version-suffix "${VERSION_RC"
-                ./src/Pi.Web/Pi.Web/csproj -o ./out'
+                echo "Publishing application for Release Candidate..."
+                // Corrected missing quotes and curly brace in --version-suffix
+                // Corrected path for .csproj and output directory
+                sh "dotnet publish -p:VersionPrefix=\"${VERSION}\" --version-suffix \"${VERSION_RC}\" ./src/Pi.Web/Pi.Web.csproj -o ./out"
+                // Archives the 'out' directory as a build artifact
                 archiveArtifacts('out/')
             }
+        }
+    }
+
+    // Post-build actions, executed after all stages are attempted
+    post {
+        always {
+            echo "Always is executed regardless of whatever happens."
+        }
+        failure {
+            echo "Pipeline failed!"
+        }
+        success {
+            echo "Pipeline succeeded!"
         }
     }
 }
