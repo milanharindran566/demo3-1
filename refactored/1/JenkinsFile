@@ -58,7 +58,7 @@ pipeline {
 
         stage('Unit Test') {
             steps {
-                dir('./refactored/1/src') {
+                dir('./refactored/src') {
                     echo "--- Listing contents of current directory ('./refactored/1/src') ---"
                     sh 'ls -F' // List files and directories here (folders end with /)
                     echo "--- Listing contents of Pi.Math.Tests/ ---"
