@@ -1,0 +1,66 @@
+pipeline {
+    agent any
+    parameters {
+        booleanParam(
+            name: 'RC', 
+            defaultValue: false, 
+            description: 'Is this a Release Candidate?'
+            )
+    }
+    environment {
+        VERSION = '1.0,0'
+        VERSION_RC = 'rc.2'
+    }
+    stages {
+        stage('Audit tools'){
+            steps {
+                sh '''
+                    git version
+                    docker version
+                    dotnet --list-sdks
+                    dotnet --list-runtimes
+                '''
+            }
+        }
+        stage('Build'){
+            environment {
+                VERSION_SUFFIX = "${
+                    sh(
+                        script:'if [ "${RC}" == "false" ] ; then echo -n "${VERSION_RC}+ci.${BUILD_NUMBER}"; else echo -n "${VERSION_RC}"; fi', returnStdout: true
+                    )}"
+            }
+            steps {
+                echo "Building version ${VERSION} with suffix ${VERSION_SUFFIX}"
+                sh 'dotnet build -p:VersionPrefix="${VERSION}" --version-suffix 
+                "${VERSION_SUFFIX}" ./src/Pi.Web/Pi.Web.csproj'
+            }
+        }
+        stage('Unit Test'){
+            steps{
+                dir('./src'){
+                    sh 
+                    '''
+                        dotnet test --logger "trx;logFileName=Pi.Math.trx" Pi.Math.Tests/Pi.Math.Tests.csproj
+                        dotnet test --logger "trx;logFileName=Pi.Runtime.trx" Pi.Math.Runtime/Pi.Math.Runtime.csproj
+                    '''
+                    mstest testResultsFile:"**/*.trx", keepLongStdio: true
+                }
+            }
+        }
+        stage('Smoke Test'){
+            steps {
+                sh 'dotnet ./src/Pi.Web/bin/Debug/netcoreapp3.1/Pi.Web.dll'
+            }
+        }
+        stage('Publish'){
+            when {
+                expression { returns params.RC}
+            }
+
+            steps {
+                sh 'dotnet publish -p:versionPrefix="${VERSION}" --version-suffix "${VERSION_RC"
+                ./src/Pi.Web/Pi.Web/csproj -o ./out'
+            }
+        }
+    }
+}
