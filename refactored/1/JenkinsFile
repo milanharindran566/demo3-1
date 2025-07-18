@@ -51,7 +51,7 @@ pipeline {
 
         stage('Unit Test') {
             steps {
-                dir('./src') {
+                dir('./refactored/1/src') {
                     sh '''
                         pwd
                         # Run tests for Pi.Math.Tests project
