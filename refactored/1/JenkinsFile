@@ -50,10 +50,8 @@ pipeline {
         }
 
         stage('Unit Test') {
-            script {
-                sh('pwd')
-            }
             steps {
+                sh 'pwd'
                 dir('./refactored/1/src') {
                     echo "--- Listing contents of current directory ('./refactored/1/src') ---"
                     sh 'ls -F' // List files and directories here (folders end with /)
