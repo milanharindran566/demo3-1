@@ -5,7 +5,7 @@ retriever: modernSCM([
 ]) 
 
 pipeline {
-    agent {label: 'docker-enabled-agent' }
+    agent {label 'docker-enabled-agent' }
     stages {
         stage('Audit tools'){
             steps{
