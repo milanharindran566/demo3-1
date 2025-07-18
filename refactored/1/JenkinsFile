@@ -53,6 +53,7 @@ pipeline {
             steps {
                 dir('./src') {
                     sh '''
+                        pwd
                         # Run tests for Pi.Math.Tests project
                         dotnet test --logger "trx;LogFileName=Pi.Math.trx" ./Pi.Math.Tests/Pi.Math.Tests.csproj
                         # Run tests for Pi.Runtime.Tests project (corrected potential typo)
