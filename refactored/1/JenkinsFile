@@ -33,15 +33,7 @@ pipeline {
         stage('Build') {
             // Environment variables specific to the 'Build' stage
             environment {
-                // Dynamically calculates VERSION_SUFFIX based on the 'RC' parameter
-                VERSION_SUFFIX = "${sh(script: '''
-                            if [ "${params.RC}" == "false" ] ; then
-                                echo -n "${VERSION_RC}+ci.${BUILD_NUMBER}"
-                            else
-                                echo -n "${VERSION_RC}"
-                            fi
-                        ''', 
-                        returnStdout: true)}"
+                VERSION_SUFFIX = "${sh(script:'if [ "${RC}" == "false" ] ; then echo -n "${VERSION_RC}+ci.${BUILD_NUMBER}"; else echo -n "${VERSION_RC}"; fi', returnStdout: true)}"
             }
             steps {
                 echo "Building version: ${VERSION} with suffix: ${VERSION_SUFFIX}"
