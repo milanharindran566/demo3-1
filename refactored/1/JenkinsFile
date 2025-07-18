@@ -51,6 +51,7 @@ pipeline {
 
         stage('Unit Test') {
             steps {
+                sh 'pwd'
                 // Changes the working directory for the commands within this block
                 dir('./src') {
                     sh '''
