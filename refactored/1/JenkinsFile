@@ -50,10 +50,12 @@ pipeline {
         }
 
         stage('Unit Test') {
-            sh 'pwd'
+            script {
+                sh('pwd')
+            }
             steps {
                 dir('./refactored/1/src') {
-                     echo "--- Listing contents of current directory ('./refactored/1/src') ---"
+                    echo "--- Listing contents of current directory ('./refactored/1/src') ---"
                     sh 'ls -F' // List files and directories here (folders end with /)
                     echo "--- Listing contents of Pi.Math.Tests/ ---"
                     sh 'ls -F Pi.Math.Tests/' // Check contents of the subfolder
