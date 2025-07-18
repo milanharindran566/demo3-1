@@ -9,7 +9,7 @@ pipeline {
     stages {
         stage('Audit tools'){
             steps{
-                auditTools()
+                auditTools2 message: 'message passed to config var'
             }
         }
     }
