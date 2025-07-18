@@ -30,7 +30,7 @@ pipeline {
 
                  // --- ADD THESE LINES FOR DIAGNOSIS ---
                 echo "--- Listing contents of entire workspace root ---"
-                pwd // Show the very top-level workspace path
+                sh 'pwd' // Show the very top-level workspace path
                 sh 'ls -R' // This will list ALL files and folders from the workspace root
                 echo "--------------------------------------------------"
                 // --- END DIAGNOSIS LINES ---
