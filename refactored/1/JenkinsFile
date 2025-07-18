@@ -60,6 +60,7 @@ pipeline {
             steps {
                 sh 'dotnet publish -p:versionPrefix="${VERSION}" --version-suffix "${VERSION_RC"
                 ./src/Pi.Web/Pi.Web/csproj -o ./out'
+                archiveArtifacts('out/')
             }
         }
     }
