@@ -1,6 +1,6 @@
 // Jenkinsfile
 pipeline {
-    agent any // Specifies that the pipeline can run on any available agent
+    agent {label 'docker-enabled-agent'} // Specifies that the pipeline can run on any available agent
 
     parameters {
         // Defines a boolean parameter 'RC' (Release Candidate)
