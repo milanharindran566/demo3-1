@@ -40,8 +40,8 @@ pipeline {
                             else
                                 echo -n "${VERSION_RC}"
                             fi
-                        ''', // Multi-line string for shell script
-                        returnStdout: true // Captures the script's output as the variable's value)}"
+                        ''', 
+                        returnStdout: true)}"
             }
             steps {
                 echo "Building version: ${VERSION} with suffix: ${VERSION_SUFFIX}"
