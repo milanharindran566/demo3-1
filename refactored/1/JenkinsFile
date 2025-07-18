@@ -35,7 +35,7 @@ pipeline {
             environment {
                 VERSION_SUFFIX = "${sh(script: """
                     if [ "${params.RC}" == "false" ] ; then
-                        echo "${env.VERSION_RC}+ci.${env.BUILD_NUMBER}"
+                        echo "${env.VERSION_RC}+${env.BUILD_NUMBER}"
                     else
                         echo "${env.VERSION_RC}"
                     fi
