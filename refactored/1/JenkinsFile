@@ -55,9 +55,9 @@ pipeline {
                 dir('./src') {
                     sh '''
                         # Run tests for Pi.Math.Tests project
-                        dotnet test --logger "trx;LogFileName=Pi.Math.trx" Pi.Math.Tests/Pi.Math.Tests.csproj
+                        dotnet test --logger "trx;LogFileName=Pi.Math.trx" ./Pi.Math.Tests/Pi.Math.Tests.csproj
                         # Run tests for Pi.Runtime.Tests project (corrected potential typo)
-                        dotnet test --logger "trx;LogFileName=Pi.Runtime.trx" Pi.Runtime.Tests/Pi.Runtime.Tests.csproj
+                        dotnet test --logger "trx;LogFileName=Pi.Runtime.trx" ./Pi.Runtime.Tests/Pi.Runtime.Tests.csproj
                     '''
                     // Publishes the TRX test results to Jenkins UI
                     mstest testResultsFile:"**/*.trx", keepLongStdio: true
