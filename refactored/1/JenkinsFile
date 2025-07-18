@@ -52,11 +52,15 @@ pipeline {
         stage('Unit Test') {
             steps {
                 dir('./refactored/1/src') {
+                     echo "--- Listing contents of current directory ('./refactored/1/src') ---"
+                    sh 'ls -F' // List files and directories here (folders end with /)
+                    echo "--- Listing contents of Pi.Math.Tests/ ---"
+                    sh 'ls -F Pi.Math.Tests/' // Check contents of the subfolder
+                    echo "------------------------------------------"
+
                     sh '''
                         pwd
-                        # Run tests for Pi.Math.Tests project
                         dotnet test --logger "trx;LogFileName=Pi.Math.trx" Pi.Math.Tests/Pi.Math.Tests.csproj
-                        # Run tests for Pi.Runtime.Tests project (corrected potential typo)
                         dotnet test --logger "trx;LogFileName=Pi.Runtime.trx" Pi.Runtime.Tests/Pi.Runtime.Tests.csproj
                     '''
                     // Publishes the TRX test results to Jenkins UI
